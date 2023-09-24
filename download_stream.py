@@ -7,6 +7,35 @@ Improvements:
 - host this library on github
 - Write seperate program that will add an intro and outro video automatically
 
+Terms: 
+HLS = HTTP Live streeaming
+m3u8 = HLS file format
+m3u8 media playlist = file containing the list of chunks for a stream, and meta information about the chunk durations 
+m3u8 master playlist = unline the media file, this file does not contain URLs for the video content directly, however it contains links to variour media playlists, there may be various media playlist depending on the resolution and fps etc
+
+- psuedo code
+- get the m3u8 file
+- Parse the file for the segment duration
+- Parse the file for the stream length 
+- check if the segment finish time is less than the stream length
+- convert the start and finish time to second
+- calculate the chunks to be downloaded
+    - start time seconds/segment duration = first chunk
+    - end time second/segment duration = last chunk
+- create a list of all the chunk URLs to download
+- download the chunks, name the chunks in order
+- for the first and last chunks, make sure that they are trimmed down to the specific time, not just the nearest segment duration 
+- stich the chunks together
+- name the file after the filename
+
+After this code is written implement asynconous download
+
+Libaries needed:
+Need library to download video - is requests library conventional for this type of thing?
+Use regular expression to parse the m3u8 media playlist
+
+
+
 IMPORTANT: Connect this repo to GIT, and make sure to connect all your projects to a git repo moving forward
 """
 
@@ -15,6 +44,9 @@ import aiohttp
 import subprocess
 import os
 from datetime import datetime, timedelta
+
+
+
 
 def time_to_seconds(time_str):
     h, m, s = map(int, time_str.split(':'))
