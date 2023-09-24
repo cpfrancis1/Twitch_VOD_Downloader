@@ -39,12 +39,30 @@ Use regular expression to parse the m3u8 media playlist
 IMPORTANT: Connect this repo to GIT, and make sure to connect all your projects to a git repo moving forward
 """
 
+import requests
 import asyncio
 import aiohttp
 import subprocess
 import os
+import re
 from datetime import datetime, timedelta
 
+
+def get_m3u8_media_playlist(m3u8_url):
+    response = requests.get(m3u8_url)
+    if response.status_code == '200':
+        return response.text
+    else: 
+        print(f'Failed to download m3u8 media playlist. {response.status_code}')
+        print(f'Error Text. {response.text}')
+        return None
+    
+def get_segment_duration(m3u8_media_playlist):
+    segment_duration_pattern = r'#EXT-X-TWITCH-TOTAL-SECS:(\d+.+)[^\n]*'
+    segment_duration = re.findall(segment_duration_pattern, m3u8_media_playlist)
+    return segment_duration
+    # stream_duration = r''
+    # not sure if i need to pass the file for the file name
 
 
 
