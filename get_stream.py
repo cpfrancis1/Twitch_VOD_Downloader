@@ -2,11 +2,11 @@ from download_stream import get_segment_duration, get_stream_duration, get_m3u8_
 import tempfile
  # Enter time in format HH:MM:SS
 
-def main():
-    url = "https://d2nvs31859zcd8.cloudfront.net/b33027d6a89a4d43f4fe_chickchau_42747680699_1694562385/160p30/index-dvr.m3u8"
-    start_time = "05:42:12" # Enter time in format HH:MM:SS
-    end_time = "05:44:12"
-    title = "Test Concat"
+def get_stream(url, start_time, end_time, title):
+    # url = "https://d2nvs31859zcd8.cloudfront.net/b33027d6a89a4d43f4fe_chickchau_42747680699_1694562385/160p30/index-dvr.m3u8"
+    # start_time = "05:42:12" # Enter time in format HH:MM:SS
+    # end_time = "05:44:12"
+    # title = "Test Concat"
     with open('index-dvr.m3u8', 'r') as file:
         data = file.read()
     segment_duration = float(get_segment_duration(data)[0])
@@ -23,11 +23,7 @@ def main():
         concat_segments(segment_list, title, temp_dir)
 
 
-
-
-    
-
-main()
+# main()
 
 
 

@@ -10,6 +10,7 @@ inputs required:
 import click
 from get_access_tokens_and_urls import get_video_id, _download_access_token, construct_cdn_url, download_m3u8_master_file, extract_twitch_vod
 from get_quality_options import get_quality_options, select_quality_option
+from get_stream import get_stream
 
 def download_video(video_url, start_time, end_time, video_title):
     
@@ -23,7 +24,8 @@ def download_video(video_url, start_time, end_time, video_title):
         print("Failed to construct CDN URL.")
     quality_options = get_quality_options(m3u8_master_content)
     m3u8_media_playlist_url = select_quality_option(quality_options)
-    extract_twitch_vod(m3u8_media_playlist_url,start_time, end_time, video_title)
+    # extract_twitch_vod(m3u8_media_playlist_url,start_time, end_time, video_title) # ffmpeg version
+    get_stream(m3u8_media_playlist_url,start_time, end_time, video_title)
 
 
 @click.command()
@@ -48,10 +50,10 @@ def main(bulk_download, video_url, start_time, end_time, video_title):
 
 
 if __name__ == "__main__":
-    video_url = "https://www.twitch.tv/videos/1924002230" #Enter VOD URL Here
-    start_time = "09:42:12" # Enter time in format HH:MM:SS
-    end_time = "09:44:12" # Enter time in format HH:MM:SS
-    video_title = "EPIC RBGS"
+    video_url = "https://www.twitch.tv/videos/1935001103" #Enter VOD URL Here
+    start_time = "02:42:12" # Enter time in format HH:MM:SS
+    end_time = "02:44:12" # Enter time in format HH:MM:SS
+    video_title = "Mitch Jones"
     download_video(video_url, start_time, end_time, video_title)
     # main()
     

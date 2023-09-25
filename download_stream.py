@@ -84,13 +84,7 @@ def get_base_url(url):
     - end time second/segment duration = last segment
 """
 def get_segment_list(base_url, start_time_seconds, end_time_seconds, segment_duration):
-    print("Base Url: "+base_url[0])
-    print("start_time:")
-    print(start_time_seconds)
-    print("segment_duration:")
-    print(segment_duration)
     start_segment = start_time_seconds/segment_duration
-    print("Start Segment: "+str(start_segment))
     end_segment = end_time_seconds/segment_duration 
     Url_list = []
     for segment_number in range(math.floor(start_segment), math.floor(end_segment)):
@@ -101,7 +95,6 @@ def get_segment_list(base_url, start_time_seconds, end_time_seconds, segment_dur
 
 def download_segments(segment_list, temp_dir):
     for url in segment_list:
-        print("URL: " + url)
         local_filename = os.path.join(temp_dir, url.split('/')[-1])
         with open(local_filename, 'wb') as local_segment:
             print(f"Downloading segment @: {url}")
@@ -123,7 +116,6 @@ def concat_segments(segment_list, title, temp_dir):
             with open(segment_path, 'rb') as segment_file:
                 output_file.write(segment_file.read())
     print("script succesfully run")
-    os.remove(temp_dir)
 
 
 # def check_if_within_video(stream_duration, end_time):
