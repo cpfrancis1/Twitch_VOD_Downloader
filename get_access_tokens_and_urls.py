@@ -1,6 +1,6 @@
 import requests
 import json
-import ffmpeg
+import ffmpeg # install "ffmpeg-python" not "ffmpeg"
 import re
 
 
@@ -72,6 +72,7 @@ def construct_cdn_url(response_json, vod_id):
         return None
 
 def download_m3u8_master_file(cdn_url):
+    print("CDN URL" + cdn_url)
     try:
         response = requests.get(cdn_url)
         if response.status_code == 200:

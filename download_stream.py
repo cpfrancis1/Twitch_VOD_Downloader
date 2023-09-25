@@ -1,8 +1,8 @@
 """
 Improvements: 
-- error handling, need to check that chunk has download correctly, if not need to redownload the chunk, and overwrite existing chunk file
+- error handling, need to check that segment has download correctly, if not need to redownload the segment, and overwrite existing segment file
 - need to have option to set the bandwith cap, for example, if you only have 50megabits/s down, no points trying to a sync more than 50 megabits/s of video at once
-- parse the file for the chunk durations
+- parse the file for the segment durations
 - make sure to clean up files after stitching together
 - host this library on github
 - Write seperate program that will add an intro and outro video automatically
@@ -12,7 +12,7 @@ Improvements:
 Terms: 
 HLS = HTTP Live streeaming
 m3u8 = HLS file format
-m3u8 media playlist = file containing the list of chunks for a stream, and meta information about the chunk durations 
+m3u8 media playlist = file containing the list of segments for a stream, and meta information about the segment durations 
 m3u8 master playlist = unline the media file, this file does not contain URLs for the video content directly, however it contains links to variour media playlists, there may be various media playlist depending on the resolution and fps etc
 
 - psuedo code
@@ -21,13 +21,13 @@ m3u8 master playlist = unline the media file, this file does not contain URLs fo
 - Parse the file for the stream length 
 - check if the segment finish time is less than the stream length
 - convert the start and finish time to second
-- calculate the chunks to be downloaded
-    - start time seconds/segment duration = first chunk
-    - end time second/segment duration = last chunk
-- create a list of all the chunk URLs to download
-- download the chunks, name the chunks in order
-- for the first and last chunks, make sure that they are trimmed down to the specific time, not just the nearest segment duration 
-- stich the chunks together
+- calculate the segments to be downloaded
+    - start time seconds/segment duration = first segment
+    - end time second/segment duration = last segment
+- create a list of all the segment URLs to download
+- download the segments, name the segments in order
+- for the first and last segments, make sure that they are trimmed down to the specific time, not just the nearest segment duration 
+- stich the segments together
 - name the file after the filename
 
 After this code is written implement asynconous download
@@ -43,12 +43,13 @@ IMPORTANT: Connect this repo to GIT, and make sure to connect all your projects 
 
 import requests
 import asyncio
-import aiohttp
+# import aiohttp
 import subprocess
 import os
 import re
 import tempfile
 from datetime import datetime, timedelta
+import math
 
 
 def get_m3u8_media_playlist(m3u8_url):
@@ -78,34 +79,51 @@ def get_base_url(url):
     return baseurl
 
 """
-- calculate the chunks to be downloaded
-    - start time seconds/segment duration = first chunk
-    - end time second/segment duration = last chunk
+- calculate the segments to be downloaded
+    - start time seconds/segment duration = first segment
+    - end time second/segment duration = last segment
 """
-def get_chunk_list(base_url, start_time_seconds, end_time_seconds, segment_duration):
+def get_segment_list(base_url, start_time_seconds, end_time_seconds, segment_duration):
+    print("Base Url: "+base_url[0])
+    print("start_time:")
+    print(start_time_seconds)
+    print("segment_duration:")
+    print(segment_duration)
     start_segment = start_time_seconds/segment_duration
+    print("Start Segment: "+str(start_segment))
     end_segment = end_time_seconds/segment_duration 
-    total_segments = end_segment - start_segment
     Url_list = []
-    for i in total_segments:
-        string = f"{base_url}{i}.ts"
+    for segment_number in range(math.floor(start_segment), math.floor(end_segment)):
+        string = f"{base_url[0]}{segment_number}.ts"
         Url_list.append(string)
     return Url_list
 
 
-def download_chunks(chunk_list, temp_dir):
-    local_filename = os.path.join(temp_dir, url.split('/')[-1])
-    with open(local_filename, 'wb') as local_chunk:
-        for url in chunk_list:
-            print(f"Downloading chunk @: {url}")
-            chunk = requests.get(url)
-            if chunk:
-                local_chunk.write(chunk)
+def download_segments(segment_list, temp_dir):
+    for url in segment_list:
+        print("URL: " + url)
+        local_filename = os.path.join(temp_dir, url.split('/')[-1])
+        with open(local_filename, 'wb') as local_segment:
+            print(f"Downloading segment @: {url}")
+            segment = requests.get(url)
+            if segment:
+                local_segment.write(segment.content)
                 print(f"Downloaded segment {local_filename}")
 
-def concat_segments(temp_dir, title):
-    
-
+def concat_segments(segment_list, title, temp_dir):
+    """
+    will need to create a video file
+    for this function need to loop through the list of segments in order
+    then will need to run a function that will delete the downloaded segments
+    """
+    output_filename = f'{title}.mp4' # later write function to sanitise title
+    with open(output_filename, 'wb') as output_file:
+        for url in segment_list:
+            segment_path = temp_dir + "\\" + url.split('/')[-1]
+            with open(segment_path, 'rb') as segment_file:
+                output_file.write(segment_file.read())
+    print("script succesfully run")
+    os.remove(temp_dir)
 
 
 # def check_if_within_video(stream_duration, end_time):
@@ -119,83 +137,83 @@ def time_to_seconds(time_str):
     h, m, s = map(int, time_str.split(':'))
     return h * 3600 + m * 60 + s
 
-async def download_chunk(session, chunk_url, output_file):
-    async with session.get(chunk_url) as response:
-        if response.status == 200:
-            chunk_data = await response.read()
-            with open(output_file, 'wb') as f:
-                f.write(chunk_data)
-        else:
-            print(f"Failed to download chunk: {chunk_url}")
+# async def download_chunk(session, chunk_url, output_file):
+#     async with session.get(chunk_url) as response:
+#         if response.status == 200:
+#             chunk_data = await response.read()
+#             with open(output_file, 'wb') as f:
+#                 f.write(chunk_data)
+#         else:
+#             print(f"Failed to download chunk: {chunk_url}")
 
-async def download_m3u8_video(m3u8_url, output_folder, start_time, end_time):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(m3u8_url) as response:
-            if response.status == 200:
-                m3u8_content = await response.text()
-                lines = m3u8_content.split('\n')
-                chunk_urls = []
-                for line in lines:
-                    if line.startswith('http'):
-                        chunk_urls.append(line.strip())
-                chunks_to_download = []
+# async def download_m3u8_video(m3u8_url, output_folder, start_time, end_time):
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(m3u8_url) as response:
+#             if response.status == 200:
+#                 m3u8_content = await response.text()
+#                 lines = m3u8_content.split('\n')
+#                 chunk_urls = []
+#                 for line in lines:
+#                     if line.startswith('http'):
+#                         chunk_urls.append(line.strip())
+#                 chunks_to_download = []
 
-                # Calculate the start and end chunk indices based on start and end times
-                start_seconds = time_to_seconds(start_time)
-                end_seconds = time_to_seconds(end_time)
-                chunk_duration = 10  # Adjust this value based on your M3U8 playlist
+#                 # Calculate the start and end chunk indices based on start and end times
+#                 start_seconds = time_to_seconds(start_time)
+#                 end_seconds = time_to_seconds(end_time)
+#                 chunk_duration = 10  # Adjust this value based on your M3U8 playlist
 
-                for i, chunk_url in enumerate(chunk_urls):
-                    chunk_start_time = i * chunk_duration
-                    chunk_end_time = (i + 1) * chunk_duration
-                    if chunk_start_time >= end_seconds:
-                        break
-                    if chunk_end_time >= start_seconds:
-                        chunks_to_download.append((chunk_url, f"{output_folder}/chunk_{i}.ts"))
+#                 for i, chunk_url in enumerate(chunk_urls):
+#                     chunk_start_time = i * chunk_duration
+#                     chunk_end_time = (i + 1) * chunk_duration
+#                     if chunk_start_time >= end_seconds:
+#                         break
+#                     if chunk_end_time >= start_seconds:
+#                         chunks_to_download.append((chunk_url, f"{output_folder}/chunk_{i}.ts"))
 
-                # Download the selected chunks asynchronously
-                tasks = [download_chunk(session, url, output_file) for url, output_file in chunks_to_download]
-                await asyncio.gather(*tasks, return_exceptions=True)
-            else:
-                print("Failed to fetch M3U8 playlist")
+#                 # Download the selected chunks asynchronously
+#                 tasks = [download_chunk(session, url, output_file) for url, output_file in chunks_to_download]
+#                 await asyncio.gather(*tasks, return_exceptions=True)
+#             else:
+#                 print("Failed to fetch M3U8 playlist")
 
-async def main():
-    m3u8_url = 'https://example.com/video.m3u8'
-    output_folder = 'output_folder'
-    start_time = '00:01:30'  # Example start time
-    end_time = '00:02:30'    # Example end time
+# async def main():
+#     m3u8_url = 'https://example.com/video.m3u8'
+#     output_folder = 'output_folder'
+#     start_time = '00:01:30'  # Example start time
+#     end_time = '00:02:30'    # Example end time
     
-    # Create the output folder if it doesn't exist
-    os.makedirs(output_folder, exist_ok=True)
+#     # Create the output folder if it doesn't exist
+#     os.makedirs(output_folder, exist_ok=True)
     
-    await download_m3u8_video(m3u8_url, output_folder, start_time, end_time)
+#     await download_m3u8_video(m3u8_url, output_folder, start_time, end_time)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+# if __name__ == '__main__':
+#     asyncio.run(main())
 
 
-import subprocess
+# import subprocess
 
-def concatenate_video_chunks(output_folder, output_video_file):
-    # Generate a list of input files (video chunks)
-    input_files = [f"{output_folder}/chunk_{i}.ts" for i in range(len(os.listdir(output_folder)))]
+# def concatenate_video_chunks(output_folder, output_video_file):
+#     # Generate a list of input files (video chunks)
+#     input_files = [f"{output_folder}/chunk_{i}.ts" for i in range(len(os.listdir(output_folder)))]
 
-    # Use ffmpeg to concatenate the video chunks into a single file
-    cmd = ["ffmpeg", "-i", "concat:" + "|".join(input_files), "-c", "copy", output_video_file]
+#     # Use ffmpeg to concatenate the video chunks into a single file
+#     cmd = ["ffmpeg", "-i", "concat:" + "|".join(input_files), "-c", "copy", output_video_file]
 
-    # Run the ffmpeg command
-    subprocess.run(cmd)
+#     # Run the ffmpeg command
+#     subprocess.run(cmd)
 
-async def main():
-    m3u8_url = 'https://example.com/video.m3u8'
-    output_folder = 'output_folder'
-    output_video_file = 'output_video.mp4'
+# async def main():
+#     m3u8_url = 'https://example.com/video.m3u8'
+#     output_folder = 'output_folder'
+#     output_video_file = 'output_video.mp4'
 
-    # ... (previous code to download chunks)
+#     # ... (previous code to download chunks)
 
-    # Concatenate the downloaded video chunks into a single video file
-    concatenate_video_chunks(output_folder, output_video_file)
+#     # Concatenate the downloaded video chunks into a single video file
+#     concatenate_video_chunks(output_folder, output_video_file)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+# if __name__ == '__main__':
+#     asyncio.run(main())
 

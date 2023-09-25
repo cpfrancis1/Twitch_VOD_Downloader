@@ -48,12 +48,12 @@ def main(bulk_download, video_url, start_time, end_time, video_title):
 
 
 if __name__ == "__main__":
-    # video_url = "https://www.twitch.tv/videos/1924002230" #Enter VOD URL Here
-    # start_time = "09:42:12" # Enter time in format HH:MM:SS
-    # end_time = "09:44:12" # Enter time in format HH:MM:SS
-    # video_title = "EPIC RBGS"
-    # download_video(video_url, start_time, end_time, video_title)
-    main()
+    video_url = "https://www.twitch.tv/videos/1924002230" #Enter VOD URL Here
+    start_time = "09:42:12" # Enter time in format HH:MM:SS
+    end_time = "09:44:12" # Enter time in format HH:MM:SS
+    video_title = "EPIC RBGS"
+    download_video(video_url, start_time, end_time, video_title)
+    # main()
     
 
     
