@@ -26,7 +26,7 @@ def coro(f):
 
 def generate_unique_directory_name():
     # Generate a unique directory name based on the current timestamp and a random string
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    timestamp = time.strftime("%d%m%Y-%H%M")
     random_string = ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=8))
     directory_name = f"./data/Bulk Downloads/Twitch Bulk Download {timestamp}-{random_string}"
     return directory_name
