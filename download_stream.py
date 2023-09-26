@@ -89,6 +89,7 @@ def get_segment_list(base_url, start_time_seconds, end_time_seconds, segment_dur
     Url_list = []
     for segment_number in range(math.floor(start_segment), math.floor(end_segment)):
         string = f"{base_url[0]}{segment_number}.ts"
+        print(f"{base_url[0]}{segment_number}.ts")
         Url_list.append(string)
     return Url_list
 
@@ -126,6 +127,7 @@ async def download_segment(url, temp_dir, semaphore):
     async with semaphore:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
+                print(response.status)
                 if response.status == 200:
                     with open(local_filename, 'wb') as local_segment:
                         while True:
@@ -144,7 +146,11 @@ async def download_segments(segment_list, temp_dir, your_bandwidth, server_bandw
 
     tasks = []
     for url in segment_list:
+        print(url)
         tasks.append(download_segment(url, temp_dir, semaphore))
 
     await asyncio.gather(*tasks)
+
+
+        
 

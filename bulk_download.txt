@@ -1,3 +1,8 @@
 "https://www.twitch.tv/videos/1924002230",07:42:12,07:44:12,EPIC RBGS 1
 "https://www.twitch.tv/videos/1924002230",06:42:12,06:44:12,EPIC RBGS 2
 "https://www.twitch.tv/videos/1924002230",05:42:12,05:44:12,EPIC RBGS 3
+"https://www.twitch.tv/videos/1924002230",03:42:12,03:44:12,EPIC RBGS 4
+"https://www.twitch.tv/videos/1924002230",02:42:12,02:44:12,EPIC RBGS 5
+"https://www.twitch.tv/videos/1924002230",01:42:12,01:44:12,EPIC RBGS 6
+"https://www.twitch.tv/videos/1924002230",00:42:12,00:44:12,EPIC RBGS 7
+

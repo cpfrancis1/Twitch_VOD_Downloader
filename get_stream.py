@@ -2,14 +2,17 @@ from download_stream import get_segment_duration, get_stream_duration, get_m3u8_
 import tempfile
 import asyncio
 import time
+import datetime
+import requests
  # Enter time in format HH:MM:SS
 
 async def get_stream(url, start_time, end_time, title, your_bandwidth, server_bandwidth):
     
-    with open('index-dvr.m3u8', 'r') as file:
-        data = file.read()
-    segment_duration = float(get_segment_duration(data)[0])
-    stream_duration = float(get_stream_duration(data)[0])
+    # with open(url.reponse, 'r') as file:
+    #     data = file.read()
+    data = requests.get(url)
+    segment_duration = float(get_segment_duration(data.text)[0])
+    stream_duration = float(get_stream_duration(data.text)[0])
     print(segment_duration)
     print(stream_duration)
     start_time_seconds = time_to_seconds(start_time)
@@ -21,7 +24,8 @@ async def get_stream(url, start_time, end_time, title, your_bandwidth, server_ba
         start_time = time.time()
         await download_segments(segment_list, temp_dir, your_bandwidth, server_bandwidth)
         concat_segments(segment_list, title, temp_dir)
-        print(f"Download took {time.time() - start_time} to run")
+        run_time = time.time()-start_time
+        print(f"Download took {run_time} to run")
 
 async def main(): 
     await get_stream(url = "https://d2nvs31859zcd8.cloudfront.net/b33027d6a89a4d43f4fe_chickchau_42747680699_1694562385/chunked/index-dvr.m3u8",
