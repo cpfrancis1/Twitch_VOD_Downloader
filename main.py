@@ -11,9 +11,11 @@ import click
 from get_access_tokens_and_urls import get_video_id, _download_access_token, construct_cdn_url, download_m3u8_master_file, extract_twitch_vod
 from get_quality_options import get_quality_options, select_quality_option
 from get_stream import get_stream
+import asyncio
 
-def download_video(video_url, start_time, end_time, video_title):
-    
+async def download_video(video_url, start_time, end_time, video_title):
+    your_bandwidth = 50
+    server_bandwidth = 5
     video_id = get_video_id(video_url)
     data = _download_access_token(str(video_id[0]))
     cdn_url = construct_cdn_url(data, str(video_id[0]))
@@ -25,7 +27,7 @@ def download_video(video_url, start_time, end_time, video_title):
     quality_options = get_quality_options(m3u8_master_content)
     m3u8_media_playlist_url = select_quality_option(quality_options)
     # extract_twitch_vod(m3u8_media_playlist_url,start_time, end_time, video_title) # ffmpeg version
-    get_stream(m3u8_media_playlist_url,start_time, end_time, video_title)
+    await get_stream(m3u8_media_playlist_url,start_time, end_time, video_title, your_bandwidth, server_bandwidth)
 
 
 @click.command()
@@ -34,7 +36,7 @@ def download_video(video_url, start_time, end_time, video_title):
 @click.option("--end-time", help="End time")
 @click.option("--video-title", help="Video title")
 @click.option("--bulk-download", type=click.Path(exists=True), help="File Path of bulk download file")
-def main(bulk_download, video_url, start_time, end_time, video_title):
+async def main(bulk_download, video_url, start_time, end_time, video_title):
     if bulk_download:
         with open(bulk_download) as file:
             lines = file.readlines()
@@ -44,17 +46,18 @@ def main(bulk_download, video_url, start_time, end_time, video_title):
             start_time = arguments[1]
             end_time = arguments[2]
             video_title = str(arguments[3]).strip()
-            download_video(video_url, start_time, end_time, video_title)
+            await download_video(video_url, start_time, end_time, video_title)
     else: 
-        download_video(video_url, start_time, end_time, video_title)
+        await download_video(video_url, start_time, end_time, video_title)
 
 
 if __name__ == "__main__":
-    video_url = "https://www.twitch.tv/videos/1935001103" #Enter VOD URL Here
-    start_time = "02:42:12" # Enter time in format HH:MM:SS
-    end_time = "02:44:12" # Enter time in format HH:MM:SS
-    video_title = "Mitch Jones"
-    download_video(video_url, start_time, end_time, video_title)
+    # video_url = "https://www.twitch.tv/videos/1935001103" #Enter VOD URL Here
+    # start_time = "02:42:12" # Enter time in format HH:MM:SS
+    # end_time = "02:44:12" # Enter time in format HH:MM:SS
+    # video_title = "Mitch Jones"
+    # download_video(video_url, start_time, end_time, video_title)
+    asyncio.run(main())
     # main()
     
 
