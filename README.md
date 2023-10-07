@@ -1,5 +1,7 @@
 # Twitch VOD Downloader
 
+**IMPORTANT NOTE** This program is not complete; I haven't implemented the downloader properly. The start and finish times may not match the output video.
+
 ## Introduction
 
 The Twitch VOD Downloader is a tool designed to simplify the process of downloading source-quality VODs from Twitchtv. Whether you're a video editor working with Twitch streams or simply someone who wants to capture specific segments without downloading the entire video, this program has you covered.
