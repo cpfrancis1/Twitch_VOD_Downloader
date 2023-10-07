@@ -6,8 +6,24 @@ inputs required:
 - finish_time in HH:MM:SS format
 - video_name
 - vod_url
+
+Terms: 
+HLS = HTTP Live streaming
+m3u8 = HLS file format
+m3u8 media playlist = file containing the list of segments for a stream, and meta information about the segment durations 
+m3u8 master playlist = unlike the media file, this file does not contain URLs for the video content directly, however it contains links to various media playlists, there may be various media playlist depending on the resolution and fps etc
 """
-from get_access_tokens_and_urls import get_video_id, _download_access_token, construct_cdn_url, download_m3u8_master_file, extract_twitch_vod
+"""
+Improvements: 
+- error handling, need to check that segment has download correctly, if not need to retry the download. If the download fails then need to break the program
+- config file for bandwidth settings
+- host this library on github
+- Write seperate program that will add an intro and outro video automatically
+- Logging?
+- Options to choose outputformat
+- Create readme file
+"""
+from get_access_tokens_and_urls import get_video_id, _download_access_token, construct_cdn_url, download_m3u8_master_file
 from get_quality_options import get_quality_options, select_quality_option
 from get_stream import get_stream
 from functools import wraps

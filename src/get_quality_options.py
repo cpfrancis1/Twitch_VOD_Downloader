@@ -1,12 +1,6 @@
 import re
 
-#Testing function used to read local file
-def read_m3u8_file(filepath):
-    with open(filepath, "r") as file:
-        m3u8_master_playlist_content = file.read()
-    return m3u8_master_playlist_content
-
-
+#function for getting the quality options for a stream
 def get_quality_options(m3u8_master_playlist_content):
     pattern = r'#EXT-X-STREAM-INF:.*VIDEO="([^"]+)".*\n(https.*)'
     quality_options = re.findall(pattern, m3u8_master_playlist_content)

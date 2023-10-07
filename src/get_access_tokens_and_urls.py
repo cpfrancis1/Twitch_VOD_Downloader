@@ -1,6 +1,5 @@
 import requests
 import json
-import ffmpeg # install "ffmpeg-python" not "ffmpeg"
 import re
 
 
@@ -10,13 +9,11 @@ def get_video_id(video_url):
     return video_id
 
 def _download_access_token(video_id):
-    # Define 
     token_kind = "video"  
     param_name = "id"  
     url = 'https://gql.twitch.tv/gql'
     client_id = 'kimne78kx3ncx6brgo4mv6wki5h1ko'
 
-    # Define the headers 
     headers = {
         'Content-Type': 'text/plain;charset=UTF-8',
         'Client-ID': client_id, 
@@ -45,7 +42,6 @@ def _download_access_token(video_id):
     # Make the POST request
     response = requests.post(url, headers=headers, data=ops_json)
 
-    # Check if the request was successful (status code 200)
     if response.status_code == 200:
         data = response.json()
         return data
@@ -84,15 +80,6 @@ def download_m3u8_master_file(cdn_url):
         print(f'Error downloading M3U8 file: {str(e)}')
         return None
     
-def extract_twitch_vod(hls_m3u8_url,start_time, finish_time, video_name):
-    print("Hls m3u8 url: " + hls_m3u8_url)
-    print("Start Time: " + start_time)
-    print("End Time: " + finish_time)
-    print("Video Title: " + video_name)
-    stream = ffmpeg.input(hls_m3u8_url, ss=start_time, to=finish_time)
-    stream = ffmpeg.output(stream, f"{video_name}.mp4")
-    ffmpeg.run(stream, overwrite_output=True)
-    print("video successfully extracted")
 
 
 

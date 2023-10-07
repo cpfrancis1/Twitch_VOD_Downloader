@@ -15,7 +15,9 @@ async def get_stream(url, start_time, end_time, title, your_bandwidth, server_ba
         print(f"Segment Duration: {segment_duration}")
         print(f"Total Stream Duration: {stream_duration}")
         start_time_seconds = time_to_seconds(start_time)
+        print("start_time_seconds: " + str(start_time_seconds))
         end_time_seconds = time_to_seconds(end_time)
+        print("End_time_seconds: " + str(end_time_seconds))
         if end_time_seconds < stream_duration:
             baseurl = get_base_url(url)
             segment_list = get_segment_list(baseurl, start_time_seconds, end_time_seconds, segment_duration)
